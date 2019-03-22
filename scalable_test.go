@@ -2,7 +2,9 @@ package boom
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/gob"
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -162,6 +164,29 @@ func TestScalableBloomGob(t *testing.T) {
 
 	if diff, equal := messagediff.PrettyDiff(f, f2); !equal {
 		t.Errorf("ScalableBoomFilter Gob Encode and Decode = %+v; not %+v\n%s", f2, f, diff)
+	}
+}
+
+func TestScalableBloomLarge(t *testing.T) {
+	total := uint32(40000000) // 40 million
+	f := NewDefaultScalableBloomFilter(0.01)
+
+	i := uint32(0)
+
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("panicked after %d iterations: %s\n", i, err)
+			panic(err)
+		}
+	}()
+
+	for ; i < total; i++ {
+		if i%1000000 == 0 {
+			fmt.Printf("  i: %d\n", i)
+		}
+		key := make([]byte, 8)
+		binary.BigEndian.PutUint32(key, i)
+		f.Add(key)
 	}
 }
 
