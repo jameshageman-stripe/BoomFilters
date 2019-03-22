@@ -3,6 +3,7 @@ package boom
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -165,6 +166,12 @@ func TestBloomFilter_EncodeDecode(t *testing.T) {
 			t.Errorf("BloomFilter has different data after encode/decode")
 		}
 	}
+}
+
+func TestClassicBloomFilterLarge(t *testing.T) {
+	f := NewBloomFilter(400000000, 0.01)
+	f.Add([]byte("hello"))
+	fmt.Println(f.Has([]byte("hello")))
 }
 
 func BenchmarkBloomAdd(b *testing.B) {
